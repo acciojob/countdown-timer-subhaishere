@@ -1,53 +1,78 @@
-// Your script here.
-// Your script here.
 const userInput = document.getElementById('userInput');
 const startButton = document.querySelector('.timer button');
-const countdownDisplay = document.getElementById('countDown');
-const endTimeDisplay = document.getElementById('endTime');
+const countDownText = document.getElementById('countDown');
+const endTimeText = document.getElementById('endTime');
 
+// Add event listener to the start button
 startButton.addEventListener('click', startCountdown);
 
+// Function to start the countdown
 function startCountdown() {
-    const duration = parseInt(userInput.value, 10);
-    
-    if (isNaN(duration) || duration <= 0) {
-        alert('Please enter a valid positive number.');
-        return;
+  // Disable user input and start button during the countdown
+  userInput.disabled = true;
+  startButton.disabled = true;
+
+  // Get the duration from the user input
+  const duration = userInput.value * 60; // Convert minutes to seconds
+
+  // Calculate the end time
+  const endTime = new Date(Date.now() + duration * 1000);
+
+  // Update the end time text
+  // endTimeText.textContent = `End Time: ${formatClockTime(endTime)}`;
+
+  // Update the countdown every second
+  const countdownInterval = setInterval(updateCountdown, 1000);
+
+  // Function to update the countdown
+  function updateCountdown() {
+    // Calculate the remaining time
+    const currentTime = Date.now();
+    const remainingTime = Math.round((endTime - currentTime) / 1000);
+
+    // Check if the countdown has ended
+    if (remainingTime < 0) {
+      // Clear the countdown interval
+		  // Calculate the end time
+  const endTimes = new Date(Date.now() + duration * 1000);
+
+  // Update the end time text
+  endTimeText.textContent = `End Time: ${formatClockTime(endTimes)}`;
+      clearInterval(countdownInterval);
+
+      // Update the countdown text and enable user input and start button
+      countDownText.textContent = 'Countdown Ended';
+      userInput.disabled = false;
+      startButton.disabled = false;
+
+      return;
     }
-    
-    const currentTime = new Date();
-    const endTime = new Date(currentTime.getTime() + duration * 60000);
-    
-    updateDisplay(endTime);
-    
-    const countdownInterval = setInterval(() => {
-        const now = new Date();
-        const remainingTime = endTime - now;
-        
-        if (remainingTime <= 0) {
-            clearInterval(countdownInterval);
-            updateDisplay(endTime, true);
-        } else {
-            updateDisplay(endTime);
-        }
-    }, 1000);
+
+    // Update the countdown text
+    countDownText.textContent = `Remaining Time: ${formatTime(remainingTime)}`;
+  }
 }
 
-function updateDisplay(endTime, countdownEnded = false) {
-    const now = new Date();
-    const remainingTime = endTime - now;
-    
-    const remainingMinutes = Math.floor(remainingTime / 60000);
-    const remainingSeconds = Math.floor((remainingTime % 60000) / 1000);
-    
-    const formattedEndTime = countdownEnded ? formatTime(endTime) : '-';
-    
-    countdownDisplay.textContent = `Remaining time: ${remainingMinutes}m ${remainingSeconds}s`;
-    endTimeDisplay.textContent = `Countdown ends at: ${formattedEndTime}`;
+// Function to format time (hh:mm:ss)
+function formatTime(time) {
+  const hours = Math.floor(time / 3600);
+  const minutes = Math.floor((time % 3600) / 60);
+  const seconds = time % 60;
+
+  return `${padZero(hours)}:${padZero(minutes)}:${padZero(seconds)}`;
 }
 
-function formatTime(date) {
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-    return `${hours}:${minutes}`;
+// Function to format clock time (hh:mm AM/PM)
+function formatClockTime(time) {
+  const hours = time.getHours();
+  const minutes = time.getMinutes();
+  const amPm = hours >= 12 ? 'PM' : 'AM';
+  const formattedHours = hours % 12 || 12;
+
+  return `${formattedHours}:${padZero(minutes)} ${amPm}`;
+}
+
+// Function to pad zeros to single-digit numbers
+function padZero(num) {
+  return num.toString().padStart(2, '0');
 }
